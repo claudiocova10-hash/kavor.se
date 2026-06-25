@@ -1,11 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000">
-  <rect width="1600" height="1000" fill="#0D1117"/>
-  <g transform="translate(520 70) scale(0.55)">
-    <path d="M690 145 A370 370 0 1 0 690 879" fill="none" stroke="#FFFFFF" stroke-width="46" stroke-linecap="round"/>
-    <path d="M390 260 L300 260 L300 764 L390 764 Z" fill="#E30613"/>
-    <path d="M432 512 L695 260 L580 260 L390 448 L390 576 L580 764 L700 764 Z" fill="#E30613"/>
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 220" role="img" aria-labelledby="title desc">
+  <title id="title">Kavor</title>
+  <desc id="desc">Kavor-logotyp med rött K, vit och svart cirkel samt texten KAVOR.</desc>
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#0b0d0f" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <circle cx="110" cy="110" r="86" fill="#0b0d0f"/>
+    <circle cx="110" cy="110" r="62" fill="#fff"/>
+    <text x="110" y="141" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="92" font-weight="900" fill="#d22127">K</text>
   </g>
-  <text x="800" y="690" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="150" font-weight="700" letter-spacing="36" fill="#FFFFFF">KAVOR</text>
-  <text x="800" y="810" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="500" letter-spacing="14" fill="#FFFFFF">HJÄLPEN INNAN VERKSTADEN</text>
-  <rect x="740" y="745" width="120" height="8" fill="#E30613"/>
+  <text x="225" y="143" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="98" font-weight="900" letter-spacing="6" fill="#111416">KAVOR</text>
 </svg>
