@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 500">
+  <rect width="1800" height="500" fill="none"/>
+  <g transform="translate(80 45) scale(0.38)">
+    <path d="M690 145 A370 370 0 1 0 690 879" fill="none" stroke="#0D1117" stroke-width="46" stroke-linecap="round"/>
+    <path d="M390 260 L300 260 L300 764 L390 764 Z" fill="#E30613"/>
+    <path d="M432 512 L695 260 L580 260 L390 448 L390 576 L580 764 L700 764 Z" fill="#E30613"/>
+  </g>
+  <text x="520" y="300" font-family="Arial, Helvetica, sans-serif" font-size="150" font-weight="700" letter-spacing="36" fill="#0D1117">KAVOR</text>
+</svg>
