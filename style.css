@@ -647,4 +647,10 @@ h3 {
   max-width: none !important;
   height: auto !important;
   margin: 0 !important;
+}@media (max-width: 780px) {
+  .hero-image-only {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
 }
