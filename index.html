@@ -8,6 +8,8 @@
   <meta name="theme-color" content="#0f1317">
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="apple-touch-icon" href="assets/favicon.png">
+  <link rel="preload" as="image" href="assets/images/hero-slides/road-desktop.jpg" media="(min-width: 701px)">
+  <link rel="preload" as="image" href="assets/images/hero-slides/road-mobile.jpg" media="(max-width: 700px)">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -28,6 +30,29 @@
 
   <main>
     <section class="hero">
+      <div class="hero-slides" aria-hidden="true">
+        <picture class="hero-slide hero-slide-road">
+          <source media="(max-width: 700px)" srcset="assets/images/hero-slides/road-mobile.jpg">
+          <img src="assets/images/hero-slides/road-desktop.jpg" alt="" fetchpriority="high">
+        </picture>
+        <picture class="hero-slide hero-slide-sunset">
+          <source media="(max-width: 700px)" srcset="assets/images/hero-slides/sunset-mobile.jpg">
+          <img src="assets/images/hero-slides/sunset-desktop.jpg" alt="" decoding="async">
+        </picture>
+        <picture class="hero-slide hero-slide-marsh">
+          <source media="(max-width: 700px)" srcset="assets/images/hero-slides/marsh-mobile.jpg">
+          <img src="assets/images/hero-slides/marsh-desktop.jpg" alt="" decoding="async">
+        </picture>
+        <picture class="hero-slide hero-slide-moose">
+          <source media="(max-width: 700px)" srcset="assets/images/hero-slides/moose-mobile.jpg">
+          <img src="assets/images/hero-slides/moose-desktop.jpg" alt="" decoding="async">
+        </picture>
+        <picture class="hero-slide hero-slide-river">
+          <source media="(max-width: 700px)" srcset="assets/images/hero-slides/river-mobile.jpg">
+          <img src="assets/images/hero-slides/river-desktop.jpg" alt="" decoding="async">
+        </picture>
+      </div>
+
       <div class="hero-shell">
         <div class="hero-copy">
           <p class="eyebrow">Hjälpen innan verkstaden</p>
