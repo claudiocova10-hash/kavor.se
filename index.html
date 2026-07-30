@@ -2,130 +2,156 @@
 <html lang="sv">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Kavor – Hjälpen innan verkstaden</title>
-  <meta name="description" content="Kavor hjälper husbils- och husvagnsägare att felsöka vanliga problem steg för steg innan de kontaktar verkstad.">
-  <meta name="theme-color" content="#12382f">
-  <link rel="icon" href="assets/kavor_brand_kit_1_0/favicon.ico">
+  <meta name="description" content="Kavor guidar husbils- och husvagnsägare genom felsökning av värme, el, vatten och kyl/frys – steg för steg, även offline.">
+  <meta name="theme-color" content="#0f1317">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/favicon.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="index.html" aria-label="Kavor startsida">
-      <img src="assets/kavor_brand_kit_1_0/kavor-primary-dark.svg" alt="Kavor logo">
-    </a>
-    <nav class="nav" aria-label="Huvudmeny">
-      <a href="#fordelar">Fördelar</a>
-      <a href="#system">System</a>
-      <a href="#om">Om Kavor</a>
-      <a href="support.html">Support</a>
-      <a class="button header-button" href="#">Ladda ner appen</a>
-    </nav>
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="Kavor startsida">
+        <img src="assets/logo-kavor-gold.png" alt="Kavor">
+      </a>
+      <nav class="nav" aria-label="Huvudmeny">
+        <a href="#sa-fungerar">Så fungerar det</a>
+        <a href="#funktioner">Funktioner</a>
+        <a href="#om">Om Kavor</a>
+        <a class="support-link" href="support.html">Support</a>
+        <a class="nav-status" href="#lansering">Lanseras snart</a>
+      </nav>
+    </div>
   </header>
 
   <main>
-   <section class="hero">
-  <img class="hero-image-only" src="assets/images/hero-v2.png" alt="Kavor hjälper innan verkstaden">
-</section>
-<!--
-    <section class="section steps-section">
-      <div class="steps-intro">
-        <p class="eyebrow">SÅ HÄR FUNGERAR KAVOR</p>
-        <h2>Tre enkla steg till rätt lösning</h2>
+    <section class="hero">
+      <div class="hero-shell">
+        <div class="hero-copy">
+          <p class="eyebrow">Hjälpen innan verkstaden</p>
+          <h1>Felsök smart.<span>Kör tryggt.</span></h1>
+          <p class="hero-description">Kavor guidar dig genom vanliga problem i husbil och husvagn. Följ tydliga steg, förstå vad du kan kontrollera själv och se när det är dags att kontakta en fackman.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#sa-fungerar">Så fungerar Kavor</a>
+            <a class="button secondary" href="support.html">Kontakta support</a>
+          </div>
+          <ul class="trust-list" aria-label="Viktiga egenskaper">
+            <li>Fungerar offline</li>
+            <li>Inget konto krävs</li>
+            <li>Uppgifter sparas lokalt</li>
+          </ul>
+        </div>
+
+        <figure class="phone-preview">
+          <div class="phone-frame">
+            <img src="assets/images/app-home.png" alt="Kavors startsida på en iPhone">
+          </div>
+          <figcaption>Den riktiga Kavor-appen i iPhone</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="funktioner" class="section systems-section">
+      <div class="section-heading">
+        <p class="eyebrow">Vanliga system</p>
+        <h2>Rätt vägledning för det som krånglar</h2>
+        <p>Kavor samlar felsökningen på ett ställe och använder enkelt språk genom hela flödet.</p>
+      </div>
+      <div class="systems-grid">
+        <article class="system-card">
+          <span class="system-icon heat" aria-hidden="true">♨</span>
+          <h3>Värme</h3>
+          <p>Värmare, varmvatten och vanliga kontroller för Alde och Truma.</p>
+        </article>
+        <article class="system-card">
+          <span class="system-icon power" aria-hidden="true">ϟ</span>
+          <h3>El</h3>
+          <p>12 V, 230 V, bodelsbatteri, laddning och säkra grundkontroller.</p>
+        </article>
+        <article class="system-card">
+          <span class="system-icon water" aria-hidden="true">●</span>
+          <h3>Vatten</h3>
+          <p>Pump, tryck, färskvatten och hjälp att förstå vanliga läckage.</p>
+        </article>
+        <article class="system-card">
+          <span class="system-icon cold" aria-hidden="true">❄</span>
+          <h3>Kyl &amp; frys</h3>
+          <p>Felsökning för gasol, 12 V och 230 V med tydliga säkerhetsstopp.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="sa-fungerar" class="section steps-section">
+      <div class="section-heading">
+        <p class="eyebrow">Så fungerar Kavor</p>
+        <h2>Tre steg till ett tydligare nästa beslut</h2>
       </div>
       <div class="steps-grid">
         <article class="step-card">
           <span class="step-number">1</span>
           <h3>Välj system</h3>
-          <p>Välj vad som inte fungerar – värme, vatten, el, kyl/frys eller gasol.</p>
+          <p>Börja med värme, el, vatten eller kyl och frys.</p>
         </article>
         <article class="step-card">
           <span class="step-number">2</span>
           <h3>Följ felsökningen</h3>
-          <p>Svara på enkla frågor och få tydliga steg att följa.</p>
+          <p>Svara på enkla frågor och gör säkra kontroller steg för steg.</p>
         </article>
         <article class="step-card">
           <span class="step-number">3</span>
           <h3>Få ett tydligt svar</h3>
-          <p>Se vad du kan kontrollera själv och när verkstad behövs.</p>
-        </article>
-      </div>
-    </section>
--->
-    <section id="om" class="section intro premium history-grid">
-      <div class="column column-left">
-        <p class="eyebrow">VARFÖR KAVOR?</p>
-        <h2>Historien bakom Kavor</h2>
-        <p>Kavor föddes inte bakom ett skrivbord.</p>
-        <p>Den föddes i verkstaden.</p>
-        <p>Efter många år i husbils- och husvagnsbranschen blev det tydligt att samma frågor återkom gång på gång.</p>
-        <p>Varför fungerar inte värmen?</p>
-        <p>Varför laddar inte bodelsbatteriet?</p>
-        <p>Varför kommer det inget vatten?</p>
-        <p>Många problem behöver inte börja med stress, gissningar eller ett onödigt verkstadsbesök.</p>
-        <p>Kavor skapades för att ge tydlig vägledning, steg för steg.</p>
-        <p>Inte för att ersätta verkstäder.</p>
-        <p>Utan för att hjälpa resenären att förstå sitt fordon, felsöka tryggt och veta när det är dags att kontakta en fackman.</p>
-        <p>Byggd i verkstaden. För resan.</p>
-        <a class="button" href="#">Läs historien bakom Kavor</a>
-      </div>
-      <div class="column column-center">
-        <div class="story-visual" aria-label="Verkstadstekniker jobbar på en husbil">
-          <img src="assets/images/history-workshop.png" alt="Verkstadstekniker arbetar på en husbil" />
-        </div>
-      </div>
-      <div class="column column-right">
-        <div class="feature-card">
-          <span class="feature-icon">✓</span>
-          <h3>Skapat av verkstadsfolk</h3>
-        </div>
-        <div class="feature-card">
-          <span class="feature-icon">✓</span>
-          <h3>Utvecklat för resenären</h3>
-        </div>
-        <div class="feature-card">
-          <span class="feature-icon">✓</span>
-          <h3>Byggt med passion</h3>
-        </div>
-      </div>
-    </section>
-
-    <section id="fordelar" class="section">
-      <div class="section-heading">
-        <p class="eyebrow">Tre huvudfördelar</p>
-        <h2>Byggd för vanliga husbils- och husvagnsägare</h2>
-      </div>
-      <div class="benefits">
-        <article class="benefit-card">
-          <span class="number">1</span>
-          <h3>Förklarar på vanligt språk</h3>
-          <p>Kavor översätter tekniska problem till tydliga frågor och enkla förklaringar.</p>
-        </article>
-        <article class="benefit-card">
-          <span class="number">2</span>
-          <h3>Visar vad som kan kontrolleras själv</h3>
-          <p>Appen fokuserar på säkra, enkla kontroller och hjälper användaren att samla rätt information.</p>
-        </article>
-        <article class="benefit-card">
-          <span class="number">3</span>
-          <h3>Visar när verkstad behövs</h3>
-          <p>Riskmoment och osäkra fel hänvisas vidare till verkstad eller behörig tekniker.</p>
+          <p>Se vad du kan göra själv och när verkstad eller tekniker behövs.</p>
         </article>
       </div>
     </section>
 
-    <section id="kontakt" class="section cta">
-      <p class="eyebrow">Kommer snart</p>
-      <h2>Kavor är under utveckling.</h2>
-      <p>Vill du testa appen eller veta mer?</p>
-      <a class="button" href="mailto:kavor.appinfo@gmail.com">Kontakta: kavor.appinfo@gmail.com</a>
+    <section id="om" class="section story-section">
+      <div class="story-copy">
+        <p class="eyebrow">Varför Kavor?</p>
+        <h2>Byggd i verkstaden. För resan.</h2>
+        <p>Kavor växte fram ur många år i husbils- och husvagnsbranschen, där samma frågor återkom: Varför fungerar inte värmen? Varför laddar inte batteriet? Varför kommer det inget vatten?</p>
+        <p>Appen skapades för att minska stress och gissningar. Den ersätter inte verkstaden – den hjälper dig att förstå fordonet, felsöka tryggt och samla rätt information inför fortsatt service.</p>
+        <div class="story-points">
+          <span>Verkstadsnära kunskap</span>
+          <span>Tydligt vardagsspråk</span>
+          <span>Säkerheten först</span>
+        </div>
+      </div>
+      <div class="story-visual">
+        <img src="assets/images/history-workshop.png" alt="En tekniker arbetar med en husbil i verkstaden">
+      </div>
+    </section>
+
+    <section class="section safety-section">
+      <div class="safety-card">
+        <div>
+          <p class="eyebrow">Viktigt om säkerhet</p>
+          <h2>Kavor ger vägledning – inte en riskfylld genväg</h2>
+        </div>
+        <p>Avbryt alltid vid gaslukt, rök, brandrisk, onormal värme eller annan akut fara. Följ fordonets bruksanvisning och anlita behörig tekniker när det behövs.</p>
+      </div>
+    </section>
+
+    <section id="lansering" class="section launch-section">
+      <div class="launch-card">
+        <p class="eyebrow">På väg till App Store</p>
+        <h2>Kavor lanseras snart för iPhone.</h2>
+        <p>Webbplatsen uppdateras med en App Store-länk så snart appen är godkänd och tillgänglig.</p>
+        <a class="button primary" href="mailto:kavor.appinfo@gmail.com">kavor.appinfo@gmail.com</a>
+      </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>© 2026 Kavor. Hjälpen innan verkstaden.</p>
-    <a href="support.html">Support</a>
-    <a href="privacy.html">Integritetspolicy</a>
+    <div class="footer-inner">
+      <p>© 2026 Kavor. Hjälpen innan verkstaden.</p>
+      <nav aria-label="Sidfot">
+        <a href="support.html">Support</a>
+        <a href="privacy.html">Integritetspolicy</a>
+      </nav>
+    </div>
   </footer>
 </body>
 </html>
