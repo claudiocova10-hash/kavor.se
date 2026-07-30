@@ -744,7 +744,12 @@ h3 {
 
 @media (max-width: 360px) {
   .brand img {
-    width: 132px;
+    width: 118px;
+  }
+
+  .nav-status {
+    padding: 0 8px;
+    font-size: 0.68rem;
   }
 }
 
