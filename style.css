@@ -694,8 +694,14 @@ h3 {
 }
 
 @media (max-width: 480px) {
-  .nav-status {
+  .nav .support-link {
     display: none;
+  }
+
+  .nav-status {
+    min-height: 36px;
+    padding: 0 11px;
+    font-size: 0.77rem;
   }
 
   .hero-shell {
@@ -733,6 +739,12 @@ h3 {
     padding-right: 16px;
     padding-left: 16px;
     font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .brand img {
+    width: 132px;
   }
 }
 
