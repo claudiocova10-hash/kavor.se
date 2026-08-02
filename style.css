@@ -182,6 +182,7 @@ h3 {
 }
 
 .hero-slide-moose img {
+  filter: brightness(1.75);
   transform: scaleX(-1);
 }
 
