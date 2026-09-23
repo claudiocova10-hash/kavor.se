@@ -545,6 +545,13 @@ h3 {
   margin-left: auto;
 }
 
+.launch-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+}
+
 .site-footer {
   border-top: 1px solid var(--line);
   color: var(--muted);
@@ -798,6 +805,10 @@ h3 {
     padding-right: 16px;
     padding-left: 16px;
     font-size: 0.9rem;
+  }
+
+  .launch-actions {
+    display: grid;
   }
 }
 
