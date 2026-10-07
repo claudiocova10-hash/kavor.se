@@ -26,6 +26,8 @@
       'Tjänsten är inte färdigkonfigurerad ännu.':'The service has not been configured yet.',
       'Något gick fel. Försök igen.':'Something went wrong. Please try again.',
       'E-postadressen eller lösenordet är fel.':'The email address or password is incorrect.',
+      'Lösenordet måste innehålla minst 8 tecken.':'The password must contain at least 8 characters.',
+      'Det finns redan ett konto med den e-postadressen.':'An account with that email address already exists.',
       'Kavor lagrar bara de kontouppgifter som behövs för att hantera licensen.':'Kavor stores only the account information needed to manage the licence.'
     },
     es:{
@@ -51,6 +53,8 @@
       'Tjänsten är inte färdigkonfigurerad ännu.':'El servicio aún no está configurado.',
       'Något gick fel. Försök igen.':'Algo ha fallado. Inténtalo de nuevo.',
       'E-postadressen eller lösenordet är fel.':'El correo electrónico o la contraseña son incorrectos.',
+      'Lösenordet måste innehålla minst 8 tecken.':'La contraseña debe contener al menos 8 caracteres.',
+      'Det finns redan ett konto med den e-postadressen.':'Ya existe una cuenta con ese correo electrónico.',
       'Kavor lagrar bara de kontouppgifter som behövs för att hantera licensen.':'Kavor solo almacena los datos de cuenta necesarios para gestionar la licencia.'
     }
   };
@@ -99,6 +103,9 @@
   function friendlyError(error){
     const message=(error?.message||'').toLowerCase();
     if(message.includes('invalid login'))return 'E-postadressen eller lösenordet är fel.';
+    if(message.includes('password')&&(message.includes('character')||message.includes('short')))return 'Lösenordet måste innehålla minst 8 tecken.';
+    if(message.includes('already registered')||message.includes('already exists'))return 'Det finns redan ett konto med den e-postadressen.';
+    if(message.includes('rate limit')||message.includes('too many'))return 'För många försök. Vänta en stund och försök igen.';
     return 'Något gick fel. Försök igen.';
   }
 
@@ -133,34 +140,40 @@
     byId('cancelRecovery')?.addEventListener('click',()=>{byId('recoveryPanel').hidden=true;byId('loginPanel').hidden=false});
 
     byId('loginForm')?.addEventListener('submit',async event=>{
-      event.preventDefault();setBusy(event.currentTarget,true);setMessage('authMessage','');
+      event.preventDefault();
       const values=new FormData(event.currentTarget);
+      setBusy(event.currentTarget,true);setMessage('authMessage','');
       const {error}=await client.auth.signInWithPassword({email:String(values.get('email')).trim(),password:String(values.get('password'))});
       setBusy(event.currentTarget,false);setMessage('authMessage',error?friendlyError(error):'Du är nu inloggad.',error?'error':'success');
     });
     byId('registerForm')?.addEventListener('submit',async event=>{
-      event.preventDefault();setBusy(event.currentTarget,true);setMessage('registerMessage','');
+      event.preventDefault();
       const values=new FormData(event.currentTarget),email=String(values.get('email')).trim(),password=String(values.get('password'));
+      setBusy(event.currentTarget,true);setMessage('registerMessage','');
       const {data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:`${config.siteUrl}/activate.html`}});
       setBusy(event.currentTarget,false);
       if(error){setMessage('registerMessage',friendlyError(error),'error');return}
       setMessage('registerMessage',data.session?'Kontot har skapats och du är inloggad.':'Kontrollera din e-post och bekräfta kontot innan du loggar in.','success');
     });
     byId('recoveryForm')?.addEventListener('submit',async event=>{
-      event.preventDefault();setBusy(event.currentTarget,true);
+      event.preventDefault();
       const values=new FormData(event.currentTarget);
+      setBusy(event.currentTarget,true);
       await client.auth.resetPasswordForEmail(String(values.get('email')).trim(),{redirectTo:`${config.siteUrl}/account.html?mode=recovery`});
       setBusy(event.currentTarget,false);setMessage('recoveryMessage','Återställningslänken har skickats om adressen finns registrerad.','success');
     });
     byId('newPasswordForm')?.addEventListener('submit',async event=>{
-      event.preventDefault();setBusy(event.currentTarget,true);
-      const values=new FormData(event.currentTarget),{error}=await client.auth.updateUser({password:String(values.get('password'))});
+      event.preventDefault();
+      const values=new FormData(event.currentTarget),password=String(values.get('password'));
+      setBusy(event.currentTarget,true);
+      const {error}=await client.auth.updateUser({password});
       setBusy(event.currentTarget,false);setMessage('newPasswordMessage',error?friendlyError(error):'Lösenordet har uppdaterats.',error?'error':'success');
     });
     byId('signOut')?.addEventListener('click',async()=>{await client.auth.signOut();setMessage('authMessage','Du är nu utloggad.','success')});
     byId('activationForm')?.addEventListener('submit',async event=>{
-      event.preventDefault();setBusy(event.currentTarget,true);setMessage('activationMessage','');
+      event.preventDefault();
       const code=String(new FormData(event.currentTarget).get('code')).trim();
+      setBusy(event.currentTarget,true);setMessage('activationMessage','');
       const {data,error}=await client.rpc('redeem_activation_code',{p_code:code});
       setBusy(event.currentTarget,false);
       if(error){setMessage('activationMessage',friendlyError(error),'error');return}
