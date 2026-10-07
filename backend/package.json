@@ -1,0 +1,11 @@
+{
+  "name": "kavor-licence-admin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate-codes": "node generate-codes.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.75.0"
+  }
+}

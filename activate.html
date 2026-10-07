@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex">
+  <title>Aktivera Kavor</title>
+  <meta name="description" content="Skapa ett Kavor-konto och aktivera din företagslicens.">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="account.css">
+</head>
+<body data-page="activate">
+  <main class="account-shell">
+    <header class="account-header">
+      <a class="account-brand" href="index.html" aria-label="Kavor startsida"><img src="assets/logo-kavor-gold.png" alt="Kavor"></a>
+      <select id="languageSelect" class="language-select" aria-label="Språk">
+        <option value="sv">Svenska</option><option value="en">English</option><option value="es">Español</option>
+      </select>
+    </header>
+
+    <section class="account-card">
+      <p class="eyebrow" data-i18n="Företagslicens">Företagslicens</p>
+      <h1 data-i18n="Aktivera licens">Aktivera licens</h1>
+      <p class="lead" data-i18n="Skapa eller logga in på ditt Kavor-konto och lös sedan in företagets kod.">Skapa eller logga in på ditt Kavor-konto och lös sedan in företagets kod.</p>
+
+      <div id="configurationNotice" class="notice" hidden>
+        <strong data-i18n="Tjänsten är inte färdigkonfigurerad ännu.">Tjänsten är inte färdigkonfigurerad ännu.</strong>
+      </div>
+
+      <div id="loggedOut">
+        <section id="loginPanel">
+          <h2 data-i18n="Logga in på kontot">Logga in på kontot</h2>
+          <form id="loginForm" class="form-grid">
+            <label><span data-i18n="E-post">E-post</span><input name="email" type="email" autocomplete="email" required></label>
+            <label><span data-i18n="Lösenord">Lösenord</span><input name="password" type="password" autocomplete="current-password" minlength="8" required></label>
+            <button class="button" type="submit" data-i18n="Logga in">Logga in</button>
+          </form>
+          <p class="auth-switch"><span data-i18n="Behöver du skapa ett konto?">Behöver du skapa ett konto?</span> <button id="showRegister" class="button link" type="button" data-i18n="Skapa konto">Skapa konto</button></p>
+          <button id="showRecovery" class="button link" type="button" data-i18n="Glömt lösenordet?">Glömt lösenordet?</button>
+          <p id="authMessage" class="form-message" aria-live="polite"></p>
+        </section>
+
+        <section id="registerPanel" hidden>
+          <h2 data-i18n="Skapa konto">Skapa konto</h2>
+          <form id="registerForm" class="form-grid">
+            <label><span data-i18n="E-post">E-post</span><input name="email" type="email" autocomplete="email" required></label>
+            <label><span data-i18n="Lösenord">Lösenord</span><input name="password" type="password" autocomplete="new-password" minlength="8" data-i18n-placeholder="Minst 8 tecken" placeholder="Minst 8 tecken" required></label>
+            <button class="button" type="submit" data-i18n="Skapa kontot">Skapa kontot</button>
+          </form>
+          <p class="auth-switch"><span data-i18n="Har du redan ett konto?">Har du redan ett konto?</span> <button id="showLogin" class="button link" type="button" data-i18n="Logga in">Logga in</button></p>
+          <p id="registerMessage" class="form-message" aria-live="polite"></p>
+        </section>
+
+        <section id="recoveryPanel" hidden>
+          <h2 data-i18n="Glömt lösenordet?">Glömt lösenordet?</h2>
+          <form id="recoveryForm" class="form-grid">
+            <label><span data-i18n="E-post">E-post</span><input name="email" type="email" autocomplete="email" required></label>
+            <button class="button" type="submit" data-i18n="Skicka återställningslänk">Skicka återställningslänk</button>
+          </form>
+          <button id="cancelRecovery" class="button link" type="button" data-i18n="Logga in">Logga in</button>
+          <p id="recoveryMessage" class="form-message" aria-live="polite"></p>
+        </section>
+      </div>
+
+      <div id="loggedIn" hidden>
+        <div class="signed-in">
+          <p><span data-i18n="Du är inloggad som">Du är inloggad som</span> <strong id="signedInEmail"></strong></p>
+          <button id="signOut" class="button secondary" type="button" data-i18n="Logga ut">Logga ut</button>
+        </div>
+        <div id="entitlementStatus" class="status-box" aria-live="polite"></div>
+
+        <section id="activationSection">
+          <div class="divider"></div>
+          <h2 data-i18n="Aktivera licens">Aktivera licens</h2>
+          <p class="muted" data-i18n="Koden finns på kortet eller i meddelandet från företaget som gav dig Kavor.">Koden finns på kortet eller i meddelandet från företaget som gav dig Kavor.</p>
+          <form id="activationForm" class="form-grid">
+            <label><span data-i18n="Aktiveringskod">Aktiveringskod</span><input class="code-input" name="code" type="text" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" placeholder="KAVOR-XXXX-XXXX-XXXX" required></label>
+            <button class="button" type="submit" data-i18n="Aktivera koden">Aktivera koden</button>
+          </form>
+          <p id="activationMessage" class="form-message" aria-live="polite"></p>
+        </section>
+      </div>
+
+      <div class="security-note"><span aria-hidden="true">●</span><p data-i18n="Samma konto fungerar på både iPhone och Android. Ingen betalning eller automatisk förnyelse startas.">Samma konto fungerar på både iPhone och Android. Ingen betalning eller automatisk förnyelse startas.</p></div>
+    </section>
+
+    <footer class="account-footer"><a href="index.html" data-i18n="Till Kavor.se">Till Kavor.se</a> · <a href="privacy.html" data-i18n="Integritetspolicy">Integritetspolicy</a></footer>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="account-config.js"></script>
+  <script src="account.js"></script>
+</body>
+</html>
