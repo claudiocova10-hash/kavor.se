@@ -1,0 +1,4 @@
+project_id = "knhidfmifdsfajtqzojy"
+
+[functions.kavora-chat]
+verify_jwt = false

@@ -6,7 +6,12 @@
   <meta name="robots" content="noindex,nofollow">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' data:; connect-src 'self' https://knhidfmifdsfajtqzojy.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>Kavora – Kavors adminassistent</title>
+  <meta name="theme-color" content="#0b1014">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="kavora.webmanifest">
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
@@ -18,8 +23,11 @@
       </a>
       <nav id="adminNav" hidden>
         <button class="nav-button active" data-view="overview"><span>Översikt</span></button>
+        <button class="nav-button" data-view="cases"><span>Kundärenden</span></button>
         <button class="nav-button" data-view="companies"><span>Företag</span></button>
         <button class="nav-button" data-view="orders"><span>Beställningar</span></button>
+        <button class="nav-button" data-view="finance"><span>Ekonomi</span></button>
+        <button class="nav-button" data-view="integrations"><span>Integrationer</span></button>
         <button class="nav-button" data-view="tasks"><span>Uppgifter</span></button>
         <button class="nav-button" data-view="documents"><span>Dokument</span></button>
       </nav>
@@ -33,8 +41,8 @@
       <section class="login-panel" id="loginPanel">
         <div class="login-card">
           <p class="eyebrow">KAVORA</p>
-          <h1>Din digitala företagsadministratör</h1>
-          <p>Samla företag, beställningar, fakturastatus, licensleveranser, dokument och påminnelser på ett ställe.</p>
+          <h1>Din digitala Kavor-assistent</h1>
+          <p>Samla kundärenden, ekonomi, butiksstatus, annonser, företag, beställningar, dokument och påminnelser på ett ställe.</p>
           <form id="loginForm" class="stack-form">
             <label>E-post<input id="loginEmail" type="email" autocomplete="username" required></label>
             <label>Lösenord<input id="loginPassword" type="password" autocomplete="current-password" required></label>
@@ -63,6 +71,7 @@
             <p id="todayText"></p>
           </div>
           <div class="topbar-actions">
+            <button class="secondary-button" id="installKavoraButton" type="button" hidden>Installera på mobilen</button>
             <button class="secondary-button" id="newTaskButton" type="button">Ny uppgift</button>
             <button class="primary-button" id="newOrderButton" type="button">Ny beställning</button>
           </div>
@@ -76,6 +85,7 @@
             <article class="metric-card danger"><span>Förfallna uppgifter</span><strong id="metricOverdue">0</strong><small>att följa upp</small></article>
             <article class="metric-card"><span>Aktiva företag</span><strong id="metricCompanies">0</strong><small>företagskunder</small></article>
             <article class="metric-card success"><span>Levererade licenser</span><strong id="metricLicenses">0</strong><small>totalt antal</small></article>
+            <article class="metric-card warning"><span>Nya kundärenden</span><strong id="metricCases">0</strong><small>behöver svar</small></article>
           </div>
 
           <div class="dashboard-grid">
@@ -95,6 +105,13 @@
           </article>
         </section>
 
+        <section class="view" data-view-panel="cases">
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Kundärenden från Kavora</h2><p>Besökare som uttryckligen har bett om personlig hjälp.</p></div><div class="filter-row compact"><button class="filter active" data-case-filter="active">Aktiva</button><button class="filter" data-case-filter="all">Alla</button></div></div>
+            <div class="table-wrap"><table><thead><tr><th>Datum</th><th>Kund</th><th>Ärende</th><th>Status</th><th></th></tr></thead><tbody id="casesTable"></tbody></table></div>
+          </article>
+        </section>
+
         <section class="view" data-view-panel="companies">
           <article class="panel">
             <div class="panel-heading"><div><h2>Företag</h2><p>Kontakt-, faktura- och leveransuppgifter.</p></div><div class="heading-actions"><input id="companySearch" type="search" placeholder="Sök företag"><button class="primary-button" id="newCompanyButton2" type="button">Nytt företag</button></div></div>
@@ -106,6 +123,33 @@
           <article class="panel">
             <div class="panel-heading"><div><h2>Beställningar och fakturor</h2><p>Fortnox är bokföringskälla. Här följer du arbetsflödet och licenserna.</p></div><button class="primary-button" id="newOrderButton2" type="button">Ny beställning</button></div>
             <div class="table-wrap"><table><thead><tr><th>Företag</th><th>Paket</th><th>Belopp</th><th>Faktura</th><th>Status</th><th></th></tr></thead><tbody id="ordersTable"></tbody></table></div>
+          </article>
+        </section>
+
+        <section class="view" data-view-panel="finance">
+          <div class="metric-grid finance-metrics">
+            <article class="metric-card"><span>Fakturerat</span><strong id="financeInvoiced">0 kr</strong><small>exkl. moms</small></article>
+            <article class="metric-card success"><span>Inbetalt</span><strong id="financePaid">0 kr</strong><small>exkl. moms</small></article>
+            <article class="metric-card warning"><span>Utestående</span><strong id="financeOutstanding">0 kr</strong><small>exkl. moms</small></article>
+            <article class="metric-card"><span>Utgående moms</span><strong id="financeVat">0 kr</strong><small>beräknad 25 %</small></article>
+            <article class="metric-card danger"><span>Kostnader</span><strong id="financeExpenses">0 kr</strong><small>exkl. moms</small></article>
+            <article class="metric-card success"><span>Preliminärt resultat</span><strong id="financeResult">0 kr</strong><small>inbetalt minus kostnader</small></article>
+          </div>
+          <article class="panel finance-notice"><strong>Ekonomiöversikt – inte bokföring.</strong> Fortnox är fortsatt källa för fakturor, moms och bokföring. Kavora hjälper dig att följa läget.</article>
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Kostnader</h2><p>Registrera kostnader för en snabb resultatbild.</p></div><button class="primary-button" id="newExpenseButton" type="button">Ny kostnad</button></div>
+            <div class="table-wrap"><table><thead><tr><th>Datum</th><th>Leverantör</th><th>Beskrivning</th><th>Exkl. moms</th><th>Moms</th><th></th></tr></thead><tbody id="expensesTable"></tbody></table></div>
+          </article>
+        </section>
+
+        <section class="view" data-view-panel="integrations">
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Kavors tjänster</h2><p>Kavora använder säkra API-anslutningar – aldrig dina vanliga lösenord.</p></div></div>
+            <div class="integration-grid" id="integrationGrid"></div>
+          </article>
+          <article class="panel integration-policy">
+            <h2>Så arbetar Kavora</h2>
+            <ul><li>Läser lanseringsstatus, nedladdningar, intäkter och annonskostnader.</li><li>Samlar avvikelser och åtgärder i din översikt.</li><li>Publicering, prisändringar, annonser och budgetändringar kräver alltid ditt godkännande.</li><li>Hemliga nycklar lagras som serverhemligheter och visas aldrig i webbläsaren.</li></ul>
           </article>
         </section>
 
@@ -191,6 +235,36 @@
         <label>Fil<input id="documentFile" type="file" required></label>
       </div>
       <div class="dialog-actions"><button class="secondary-button" value="cancel">Avbryt</button><button class="primary-button" id="saveDocumentButton" value="default">Ladda upp</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="caseDialog">
+    <form method="dialog" id="caseForm" class="dialog-form">
+      <div class="dialog-heading"><div><p class="eyebrow">KUNDÄRENDE</p><h2 id="caseDialogTitle">Kundärende</h2></div><button class="icon-button" value="cancel" aria-label="Stäng">×</button></div>
+      <input id="caseId" type="hidden">
+      <div id="caseContact" class="case-contact"></div>
+      <div id="caseTranscript" class="case-transcript"></div>
+      <div class="form-grid">
+        <label>Status<select id="caseStatus"><option value="new">Nytt</option><option value="in_progress">Pågår</option><option value="resolved">Avslutat</option></select></label>
+        <label class="wide">Intern anteckning<textarea id="caseNotes" rows="3"></textarea></label>
+      </div>
+      <div class="dialog-actions"><a class="secondary-button mail-link" id="caseEmailLink" href="#">Svara via e-post</a><button class="primary-button" value="default">Spara ärende</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="expenseDialog">
+    <form method="dialog" id="expenseForm" class="dialog-form">
+      <div class="dialog-heading"><div><p class="eyebrow">EKONOMI</p><h2>Ny kostnad</h2></div><button class="icon-button" value="cancel" aria-label="Stäng">×</button></div>
+      <div class="form-grid">
+        <label>Datum<input id="expenseDate" type="date" required></label>
+        <label>Kategori<select id="expenseCategory"><option value="software">Programvara</option><option value="marketing">Marknadsföring</option><option value="services">Tjänster</option><option value="equipment">Utrustning</option><option value="other">Övrigt</option></select></label>
+        <label>Leverantör<input id="expenseSupplier"></label>
+        <label>Belopp exkl. moms<input id="expenseAmount" type="number" min="0" step="0.01" required></label>
+        <label>Moms<input id="expenseVat" type="number" min="0" step="0.01" value="0" required></label>
+        <label>Referens/kvitto<input id="expenseReference"></label>
+        <label class="wide">Beskrivning<textarea id="expenseDescription" rows="3" required></textarea></label>
+      </div>
+      <div class="dialog-actions"><button class="secondary-button" value="cancel">Avbryt</button><button class="primary-button" value="default">Spara kostnad</button></div>
     </form>
   </dialog>
 

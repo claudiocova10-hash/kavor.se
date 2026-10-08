@@ -3,7 +3,7 @@
 
   const config=window.KAVOR_ACCOUNT_CONFIG||{};
   let client=null;
-  const state={session:null,companies:[],orders:[],tasks:[],documents:[],taskFilter:'open'};
+  const state={session:null,companies:[],orders:[],tasks:[],documents:[],cases:[],expenses:[],integrations:[],taskFilter:'open',caseFilter:'active'};
   const $=selector=>document.querySelector(selector);
   const $$=selector=>Array.from(document.querySelectorAll(selector));
   const today=new Date();
@@ -12,7 +12,8 @@
   const statusLabels={
     lead:'Intresserad',active:'Aktiv kund',paused:'Pausad',
     draft:'Utkast',invoice_ready:'Fakturaunderlag klart',sent:'Faktura skickad',paid:'Betald',licenses_delivered:'Licenser levererade',cancelled:'Avbruten',
-    quote_agreement:'Offert och avtal',order:'Beställning',invoice:'Faktura',license_codes:'Licenskoder',communication:'Kommunikation',other:'Övrigt'
+    quote_agreement:'Offert och avtal',order:'Beställning',invoice:'Faktura',license_codes:'Licenskoder',communication:'Kommunikation',other:'Övrigt',
+    new:'Nytt',in_progress:'Pågår',resolved:'Avslutat',not_connected:'Inte ansluten',connected:'Ansluten',error:'Behöver åtgärdas',software:'Programvara',marketing:'Marknadsföring',services:'Tjänster',equipment:'Utrustning'
   };
 
   function localDate(date){
@@ -93,23 +94,27 @@
 
   async function refreshData(){
     try{
-      const [companies,orders,tasks,documents]=await Promise.all([
+      const [companies,orders,tasks,documents,cases,expenses,integrations]=await Promise.all([
         api('/rest/v1/business_companies?select=*&order=created_at.desc'),
         api('/rest/v1/business_orders?select=*,business_companies(id,name)&order=created_at.desc'),
         api('/rest/v1/business_tasks?select=*,business_companies(id,name)&order=due_date.asc,created_at.desc'),
-        api('/rest/v1/business_documents?select=*,business_companies(id,name)&order=created_at.desc')
+        api('/rest/v1/business_documents?select=*,business_companies(id,name)&order=created_at.desc'),
+        api('/rest/v1/support_cases?select=*&order=created_at.desc'),
+        api('/rest/v1/business_expenses?select=*&order=expense_date.desc,created_at.desc'),
+        api('/rest/v1/kavora_integrations?select=*&order=provider.asc')
       ]);
-      state.companies=companies||[];state.orders=orders||[];state.tasks=tasks||[];state.documents=documents||[];
+      state.companies=companies||[];state.orders=orders||[];state.tasks=tasks||[];state.documents=documents||[];state.cases=cases||[];state.expenses=expenses||[];state.integrations=integrations||[];
       renderAll();
     }catch(error){showMessage(errorText(error),'error')}
   }
 
-  function renderAll(){renderMetrics();renderNextActions();renderPipeline();renderCompanies();renderOrders();renderTasks();renderDocuments();fillCompanySelects()}
+  function renderAll(){renderMetrics();renderNextActions();renderPipeline();renderCases();renderCompanies();renderOrders();renderFinance();renderExpenses();renderIntegrations();renderTasks();renderDocuments();fillCompanySelects()}
   function renderMetrics(){
     $('#metricAction').textContent=state.orders.filter(order=>!['licenses_delivered','cancelled'].includes(order.status)).length;
     $('#metricOverdue').textContent=state.tasks.filter(task=>task.status==='open'&&task.due_date&&task.due_date<todayIso).length;
     $('#metricCompanies').textContent=state.companies.filter(company=>company.status==='active').length;
     $('#metricLicenses').textContent=state.orders.filter(order=>order.status==='licenses_delivered').reduce((sum,order)=>sum+Number(order.quantity||0),0);
+    $('#metricCases').textContent=state.cases.filter(item=>item.status==='new').length;
   }
   function automaticOrderAction(order){
     const company=order.business_companies?.name||companyById(order.company_id)?.name||'Okänt företag';
@@ -146,6 +151,28 @@
       return `<tr><td><strong>${escapeHtml(company)}</strong><small>${formatDate(order.ordered_at||order.created_at)}</small></td><td>${order.quantity} × ${order.package_months} mån</td><td>${formatMoney(orderTotal(order))}<small>exkl. moms</small></td><td>${escapeHtml(order.invoice_reference||'Inte skapad')}<small>${order.due_date?`Förfall ${formatDate(order.due_date)}`:''}</small></td><td><span class="badge ${order.status}">${escapeHtml(statusLabels[order.status]||order.status)}</span></td><td><button class="table-action" data-edit-order="${order.id}">Öppna</button> <button class="table-action" data-print-order="${order.id}">Underlag</button></td></tr>`;
     }).join(''):'<tr><td colspan="6"><div class="empty-state">Inga beställningar ännu.</div></td></tr>';
   }
+  function renderCases(){
+    const rows=state.cases.filter(item=>state.caseFilter==='all'||item.status!=='resolved');
+    $('#casesTable').innerHTML=rows.length?rows.map(item=>`<tr><td>${formatDate(item.created_at)}</td><td><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.email)}</small></td><td>${escapeHtml(item.subject||item.initial_message||'Kundfråga')}</td><td><span class="badge ${item.status}">${escapeHtml(statusLabels[item.status]||item.status)}</span></td><td><button class="table-action" data-open-case="${item.id}">Öppna</button></td></tr>`).join(''):'<tr><td colspan="5"><div class="empty-state">Inga kundärenden i den här vyn.</div></td></tr>';
+  }
+  function renderFinance(){
+    const invoiced=state.orders.filter(item=>['sent','paid','licenses_delivered'].includes(item.status)).reduce((sum,item)=>sum+orderTotal(item),0);
+    const paid=state.orders.filter(item=>['paid','licenses_delivered'].includes(item.status)).reduce((sum,item)=>sum+orderTotal(item),0);
+    const outstanding=state.orders.filter(item=>item.status==='sent').reduce((sum,item)=>sum+orderTotal(item),0);
+    const expenses=state.expenses.reduce((sum,item)=>sum+Number(item.amount_ex_vat||0),0);
+    $('#financeInvoiced').textContent=formatMoney(invoiced);$('#financePaid').textContent=formatMoney(paid);$('#financeOutstanding').textContent=formatMoney(outstanding);$('#financeVat').textContent=formatMoney(invoiced*.25);$('#financeExpenses').textContent=formatMoney(expenses);$('#financeResult').textContent=formatMoney(paid-expenses);
+  }
+  function renderExpenses(){
+    $('#expensesTable').innerHTML=state.expenses.length?state.expenses.map(item=>`<tr><td>${formatDate(item.expense_date)}</td><td>${escapeHtml(item.supplier||'–')}</td><td><strong>${escapeHtml(item.description)}</strong><small>${escapeHtml(statusLabels[item.category]||item.category)}${item.reference?` · ${escapeHtml(item.reference)}`:''}</small></td><td>${formatMoney(item.amount_ex_vat)}</td><td>${formatMoney(item.vat_amount)}</td><td><button class="table-action" data-delete-expense="${item.id}">Ta bort</button></td></tr>`).join(''):'<tr><td colspan="6"><div class="empty-state">Inga kostnader registrerade ännu.</div></td></tr>';
+  }
+  function renderIntegrations(){
+    const definitions=[
+      {provider:'app_store_connect',name:'App Store Connect',description:'Appstatus, granskning, nedladdningar och intäkter.'},
+      {provider:'google_play',name:'Google Play Console',description:'Lanseringsstatus, installationer, prenumerationer och intäkter.'},
+      {provider:'meta_ads',name:'Meta Ads Manager',description:'Annonskostnader, räckvidd och kampanjresultat.'}
+    ];
+    $('#integrationGrid').innerHTML=definitions.map(def=>{const item=state.integrations.find(row=>row.provider===def.provider)||{status:'not_connected'};return `<article class="integration-card"><h3>${def.name}</h3><p>${def.description}</p><div class="integration-meta"><span class="badge ${item.status}">${escapeHtml(statusLabels[item.status]||item.status)}</span><button class="table-action" data-configure-integration="${def.provider}">${item.status==='connected'?'Visa':'Anslut säkert'}</button></div>${item.last_synced_at?`<small>Senast synkad ${formatDate(item.last_synced_at)}</small>`:''}</article>`}).join('');
+  }
   function renderTasks(){
     const tasks=state.tasks.filter(task=>state.taskFilter==='all'||task.status===state.taskFilter);
     $('#tasksList').innerHTML=tasks.length?tasks.map(task=>{
@@ -164,7 +191,7 @@
   }
 
   function switchView(view){
-    const titles={overview:'Översikt',companies:'Företag',orders:'Beställningar',tasks:'Uppgifter',documents:'Dokument'};
+    const titles={overview:'Översikt',cases:'Kundärenden',companies:'Företag',orders:'Beställningar',finance:'Ekonomi',integrations:'Integrationer',tasks:'Uppgifter',documents:'Dokument'};
     $$('.view').forEach(panel=>panel.classList.toggle('active',panel.dataset.viewPanel===view));
     $$('.nav-button').forEach(button=>button.classList.toggle('active',button.dataset.view===view));
     $('#viewTitle').textContent=titles[view]||'Översikt';
@@ -184,6 +211,12 @@
   function openTask(){
     $('#taskForm').reset();fillCompanySelects();
     const due=new Date();due.setDate(due.getDate()+1);$('#taskDueDate').value=localDate(due);$('#taskDialog').showModal();
+  }
+  function openCase(item){
+    if(!item)return;$('#caseId').value=item.id;$('#caseDialogTitle').textContent=item.subject||'Kundärende';$('#caseStatus').value=item.status;$('#caseNotes').value=item.internal_notes||'';$('#caseContact').innerHTML=`<strong>${escapeHtml(item.name)}</strong><br><a href="mailto:${encodeURIComponent(item.email)}">${escapeHtml(item.email)}</a><br><small>Skickat ${formatDate(item.created_at)} · ${escapeHtml((item.language||'sv').toUpperCase())}</small>`;const transcript=Array.isArray(item.transcript)?item.transcript:[];$('#caseTranscript').innerHTML=transcript.length?transcript.map(message=>`<div class="case-message ${message.role==='assistant'?'assistant':'user'}"><small>${message.role==='assistant'?'Kavora':'Kund'}</small>${escapeHtml(message.content||'')}</div>`).join(''):`<div class="case-message user">${escapeHtml(item.initial_message||item.subject||'')}</div>`;$('#caseEmailLink').href=`mailto:${encodeURIComponent(item.email)}?subject=${encodeURIComponent(`Svar från Kavor: ${item.subject||'din fråga'}`)}`;$('#caseDialog').showModal();
+  }
+  function openExpense(){
+    $('#expenseForm').reset();$('#expenseDate').value=todayIso;$('#expenseVat').value='0';$('#expenseDialog').showModal();
   }
   function updateOrderTotal(){
     const temp={quantity:$('#orderQuantity').value,unit_price_sek:$('#orderUnitPrice').value,discount_percent:$('#orderDiscount').value};
@@ -218,6 +251,18 @@
     const task=state.tasks.find(item=>item.id===id);if(!task)return;
     try{await write(`/rest/v1/business_tasks?id=eq.${id}`,'PATCH',{status:task.status==='done'?'open':'done',completed_at:task.status==='done'?null:new Date().toISOString()});await refreshData()}catch(error){showMessage(errorText(error),'error')}
   }
+  async function saveCase(event){
+    event.preventDefault();const id=$('#caseId').value;if(!id)return;
+    try{await write(`/rest/v1/support_cases?id=eq.${id}`,'PATCH',{status:$('#caseStatus').value,internal_notes:$('#caseNotes').value.trim()||null,resolved_at:$('#caseStatus').value==='resolved'?new Date().toISOString():null});$('#caseDialog').close();showMessage('Kundärendet har uppdaterats.');await refreshData()}catch(error){showMessage(errorText(error),'error')}
+  }
+  async function saveExpense(event){
+    event.preventDefault();const payload={expense_date:$('#expenseDate').value,category:$('#expenseCategory').value,supplier:$('#expenseSupplier').value.trim()||null,amount_ex_vat:Number($('#expenseAmount').value),vat_amount:Number($('#expenseVat').value||0),reference:$('#expenseReference').value.trim()||null,description:$('#expenseDescription').value.trim()};
+    try{await write('/rest/v1/business_expenses','POST',payload);$('#expenseDialog').close();showMessage('Kostnaden har registrerats.');await refreshData()}catch(error){showMessage(errorText(error),'error')}
+  }
+  async function deleteExpense(id){
+    if(!window.confirm('Ta bort den här kostnaden från Kavora? Fortnox påverkas inte.'))return;
+    try{await api(`/rest/v1/business_expenses?id=eq.${id}`,{method:'DELETE'});showMessage('Kostnaden har tagits bort.');await refreshData()}catch(error){showMessage(errorText(error),'error')}
+  }
   function safeFileName(name){return String(name||'dokument').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'')||'dokument'}
   async function uploadDocument(event){
     event.preventDefault();
@@ -251,6 +296,11 @@
   }
 
   function bindEvents(){
+    let installPrompt=null;const installButton=$('#installKavoraButton');
+    window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;installButton.hidden=false});
+    installButton.addEventListener('click',async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;installButton.hidden=true;return}showMessage('På iPhone: öppna admin.html i Safari, tryck Dela och välj Lägg till på hemskärmen.')});
+    if(/iPhone|iPad|iPod/i.test(navigator.userAgent)&&!window.matchMedia('(display-mode: standalone)').matches)installButton.hidden=false;
+    if('serviceWorker' in navigator)navigator.serviceWorker.register('/admin-sw.js').catch(()=>{});
     $('#loginForm').addEventListener('submit',async event=>{
       event.preventDefault();const message=$('#loginMessage');message.textContent='Loggar in…';message.className='form-message';
       try{const {data,error}=await client.auth.signInWithPassword({email:$('#loginEmail').value.trim(),password:$('#loginPassword').value});if(error)throw error;state.session=data.session;$('#signedInAs').textContent=state.session.user?.email||'';$('#signOutButton').hidden=false;message.textContent='';await enterAdmin()}catch(error){message.textContent=errorText(error);message.className='form-message error'}
@@ -267,7 +317,9 @@
     $('#companyForm').addEventListener('submit',saveCompany);$('#orderForm').addEventListener('submit',saveOrder);$('#taskForm').addEventListener('submit',saveTask);$('#documentForm').addEventListener('submit',uploadDocument);
     $('#orderQuantity').addEventListener('input',updateOrderTotal);$('#orderUnitPrice').addEventListener('input',updateOrderTotal);$('#orderDiscount').addEventListener('input',updateOrderTotal);
     $('#companySearch').addEventListener('input',renderCompanies);
-    $$('.filter').forEach(button=>button.addEventListener('click',()=>{state.taskFilter=button.dataset.taskFilter;$$('.filter').forEach(item=>item.classList.toggle('active',item===button));renderTasks()}));
+    $$('[data-task-filter]').forEach(button=>button.addEventListener('click',()=>{state.taskFilter=button.dataset.taskFilter;$$('[data-task-filter]').forEach(item=>item.classList.toggle('active',item===button));renderTasks()}));
+    $$('[data-case-filter]').forEach(button=>button.addEventListener('click',()=>{state.caseFilter=button.dataset.caseFilter;$$('[data-case-filter]').forEach(item=>item.classList.toggle('active',item===button));renderCases()}));
+    $('#newExpenseButton').addEventListener('click',openExpense);$('#expenseForm').addEventListener('submit',saveExpense);$('#caseForm').addEventListener('submit',saveCase);
     document.addEventListener('click',event=>{
       const close=event.target.closest('[value="cancel"]');if(close){event.preventDefault();close.closest('dialog')?.close();return}
       const editCompany=event.target.closest('[data-edit-company]');if(editCompany){openCompany(companyById(editCompany.dataset.editCompany));return}
@@ -275,6 +327,9 @@
       const complete=event.target.closest('[data-complete-task]');if(complete){toggleTask(complete.dataset.completeTask);return}
       const documentButton=event.target.closest('[data-open-document]');if(documentButton){openDocument(documentButton.dataset.openDocument);return}
       const printButton=event.target.closest('[data-print-order]');if(printButton){printOrder(printButton.dataset.printOrder)}
+      const caseButton=event.target.closest('[data-open-case]');if(caseButton){openCase(state.cases.find(item=>item.id===caseButton.dataset.openCase));return}
+      const expenseButton=event.target.closest('[data-delete-expense]');if(expenseButton){deleteExpense(expenseButton.dataset.deleteExpense);return}
+      const integrationButton=event.target.closest('[data-configure-integration]');if(integrationButton){showMessage('Anslutningen förbereds med läsbehörighet. Hemliga API-nycklar läggs in i nästa säkra steg.');switchView('integrations')}
     });
   }
 
