@@ -11,7 +11,7 @@ Kavora finns på `https://kavor.se/admin.html` när den nya webbversionen har pu
 
 Det skapar privata tabeller för företag, beställningar, uppgifter, dokument och licensleveranser. Det skapar också den privata dokumentbehållaren `kavor-business-documents`.
 
-Kör därefter `supabase/kavora-customer-service.sql`. Den kompletterar Kavora med kundärenden, kostnader, ekonomiöversikt och integrationsstatus. Kundärenden rensas senast efter 12 månader via funktionen `cleanup_expired_support_data` när den schemalagts.
+Kör därefter `supabase/kavora-customer-service.sql`. Den kompletterar Kavora med kundärenden, kostnader, ekonomiöversikt och integrationsstatus. Kör till sist `supabase/kavora-economy-assistant.sql` för kostnadsinkorg, kvittoarkiv och Fortnox-underlag. Kundärenden rensas senast efter 12 månader via funktionen `cleanup_expired_support_data` när den schemalagts.
 
 ## 2. Lägg till ditt konto som administratör
 
@@ -38,6 +38,17 @@ on conflict (user_id) do update set display_name=excluded.display_name;
 7. Ladda upp avtal, fakturakopia och licenslista under rätt företag och kategori.
 
 Fortnox är fortsatt den juridiska källan för fakturor och bokföring. Kavora är arbetsytan som håller ihop order, uppföljning, licenser och dokument.
+
+## Ekonomiassistent
+
+1. Öppna **Ekonomi** i Kavora och välj rätt månad.
+2. Tryck **+ Kostnad**, ange belopp inklusive moms och välj momssats. Kavora räknar ut belopp exklusive moms och ingående moms.
+3. Ladda upp eller fotografera kvittot/fakturan. Underlaget sparas privat under `_ekonomi/år/månad/kategori` i `kavor-business-documents`.
+4. Poster utan underlag markeras **Saknar underlag**. Kompletta poster markeras **Klar för Fortnox**.
+5. Tryck **Fortnox-underlag** för en CSV-fil med periodens kostnader och preliminära kontoförslag. Kontrollera alltid kontering och moms innan bokföring.
+6. Tryck **Sammanställning** för utskrift eller PDF. När posten är registrerad i Fortnox markerar du den **Bokförd** i Kavora.
+
+Kavora ersätter inte bokföringen i Fortnox. Belopp, momssats, avdragsrätt och kontoförslag måste kontrolleras mot originalunderlaget och vid behov med redovisningskunnig person.
 
 ## Kundhjälp
 

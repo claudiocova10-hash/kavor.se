@@ -136,9 +136,15 @@
             <article class="metric-card success"><span>Preliminärt resultat</span><strong id="financeResult">0 kr</strong><small>inbetalt minus kostnader</small></article>
           </div>
           <article class="panel finance-notice"><strong>Ekonomiöversikt – inte bokföring.</strong> Fortnox är fortsatt källa för fakturor, moms och bokföring. Kavora hjälper dig att följa läget.</article>
+          <div class="metric-grid finance-metrics compact-metrics">
+            <article class="metric-card danger"><span>Periodens kostnader</span><strong id="financePeriodExpenses">0 kr</strong><small>exkl. moms</small></article>
+            <article class="metric-card"><span>Ingående moms</span><strong id="financePeriodVat">0 kr</strong><small>registrerad för perioden</small></article>
+            <article class="metric-card warning"><span>Saknar underlag</span><strong id="financeMissingReceipts">0</strong><small>kvitton eller fakturor</small></article>
+            <article class="metric-card success"><span>Klara för Fortnox</span><strong id="financeReadyExpenses">0</strong><small>inte bokförda ännu</small></article>
+          </div>
           <article class="panel">
-            <div class="panel-heading"><div><h2>Kostnader</h2><p>Registrera kostnader för en snabb resultatbild.</p></div><button class="primary-button" id="newExpenseButton" type="button">Ny kostnad</button></div>
-            <div class="table-wrap"><table><thead><tr><th>Datum</th><th>Leverantör</th><th>Beskrivning</th><th>Exkl. moms</th><th>Moms</th><th></th></tr></thead><tbody id="expensesTable"></tbody></table></div>
+            <div class="panel-heading"><div><h2>Kostnadsinkorg</h2><p>Fota eller ladda upp underlaget. Kavora sorterar privat under Ekonomi → år → månad → kategori.</p></div><div class="heading-actions"><input id="expenseMonth" type="month" aria-label="Välj kostnadsmånad"><button class="secondary-button" id="printExpenseSummaryButton" type="button">Sammanställning</button><button class="secondary-button" id="exportExpensesButton" type="button">Fortnox-underlag</button><button class="primary-button" id="newExpenseButton" type="button">+ Kostnad</button></div></div>
+            <div class="table-wrap"><table><thead><tr><th>Datum</th><th>Leverantör</th><th>Beskrivning</th><th>Belopp</th><th>Moms</th><th>Underlag</th><th>Status</th><th></th></tr></thead><tbody id="expensesTable"></tbody></table></div>
           </article>
         </section>
 
@@ -254,22 +260,29 @@
 
   <dialog id="expenseDialog">
     <form method="dialog" id="expenseForm" class="dialog-form">
-      <div class="dialog-heading"><div><p class="eyebrow">EKONOMI</p><h2>Ny kostnad</h2></div><button class="icon-button" value="cancel" aria-label="Stäng">×</button></div>
+      <div class="dialog-heading"><div><p class="eyebrow">KAVORA EKONOMI</p><h2 id="expenseDialogTitle">Ny kostnad</h2></div><button class="icon-button" value="cancel" aria-label="Stäng">×</button></div>
+      <input id="expenseId" type="hidden">
       <div class="form-grid">
         <label>Datum<input id="expenseDate" type="date" required></label>
         <label>Kategori<select id="expenseCategory"><option value="software">Programvara</option><option value="marketing">Marknadsföring</option><option value="services">Tjänster</option><option value="equipment">Utrustning</option><option value="other">Övrigt</option></select></label>
-        <label>Leverantör<input id="expenseSupplier"></label>
-        <label>Belopp exkl. moms<input id="expenseAmount" type="number" min="0" step="0.01" required></label>
-        <label>Moms<input id="expenseVat" type="number" min="0" step="0.01" value="0" required></label>
+        <label>Leverantör<input id="expenseSupplier" placeholder="Exempel: Apple, Google eller Fortnox"></label>
+        <label>Betalsätt<select id="expensePaymentMethod"><option value="card">Företagskort</option><option value="invoice">Faktura</option><option value="bank">Banköverföring</option><option value="private">Privat utlägg</option><option value="other">Övrigt</option></select></label>
+        <label>Belopp inkl. moms<input id="expenseAmountIncl" type="number" min="0" step="0.01" inputmode="decimal" required></label>
+        <label>Momssats<select id="expenseVatRate"><option value="25">25 %</option><option value="12">12 %</option><option value="6">6 %</option><option value="0">0 % / ingen moms</option></select></label>
+        <label>Belopp exkl. moms<input id="expenseAmount" type="number" min="0" step="0.01" readonly required></label>
+        <label>Moms<input id="expenseVat" type="number" min="0" step="0.01" readonly required></label>
         <label>Referens/kvitto<input id="expenseReference"></label>
+        <label>Status<select id="expenseStatus"><option value="ready">Klar för Fortnox</option><option value="missing_receipt">Saknar underlag</option><option value="booked">Bokförd</option></select></label>
+        <label class="wide">Kvitto eller faktura<input id="expenseFile" type="file" accept="image/*,application/pdf"></label>
+        <p class="wide form-hint" id="expenseFileHint">PDF eller bild, högst 20 MB. På mobilen kan du välja kamera.</p>
         <label class="wide">Beskrivning<textarea id="expenseDescription" rows="3" required></textarea></label>
       </div>
-      <div class="dialog-actions"><button class="secondary-button" value="cancel">Avbryt</button><button class="primary-button" value="default">Spara kostnad</button></div>
+      <div class="dialog-actions"><button class="secondary-button" value="cancel">Avbryt</button><button class="primary-button" value="default">Spara och sortera</button></div>
     </form>
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="account-config.js"></script>
-  <script src="admin.js?v=9"></script>
+  <script src="admin.js?v=10"></script>
 </body>
 </html>
