@@ -53,7 +53,7 @@
     const text=await response.text();
     let data=null;
     try{data=text?JSON.parse(text):null}catch{data={message:text}}
-    if(!response.ok){const error=new Error(data?.message||data?.msg||'Något gick fel.');error.status=response.status;throw error}
+    if(!response.ok){const error=new Error(data?.error||data?.message||data?.msg||'Något gick fel.');error.status=response.status;throw error}
     return data;
   }
   async function write(path,method,body){return api(path,{method,body,headers:{Prefer:'return=representation'}})}
