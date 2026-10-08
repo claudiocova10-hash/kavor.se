@@ -1,5 +1,5 @@
-const CACHE='kavora-shell-v8';
-const SHELL=['/admin.html','/admin.css','/admin.js?v=8','/account-config.js','/kavora.webmanifest','/assets/logo-kavor-gold.png','/assets/apple-touch-icon.png','/assets/favicon-192.png'];
+const CACHE='kavora-shell-v9';
+const SHELL=['/admin.html','/admin.css','/admin.js?v=9','/account-config.js','/kavora.webmanifest','/assets/logo-kavor-gold.png','/assets/apple-touch-icon.png','/assets/favicon-192.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL))));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key))))));
 self.addEventListener('fetch',event=>{

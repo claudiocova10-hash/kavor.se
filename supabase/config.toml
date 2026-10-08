@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.kavora-google-play]
 verify_jwt = false
+
+[functions.kavora-meta-ads]
+verify_jwt = false

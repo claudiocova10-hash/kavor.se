@@ -173,9 +173,9 @@
     const definitions=[
       {provider:'app_store_connect',name:'App Store Connect',description:'Appstatus, granskning, nedladdningar och intäkter.'},
       {provider:'google_play',name:'Google Play Console',description:'Lanseringsstatus, installationer, prenumerationer och intäkter.'},
-      {provider:'meta_ads',name:'Meta Ads Manager',description:'Annonskostnader, räckvidd och kampanjresultat.',pending:true,note:'Kräver en Meta-app och läsbehörighet till Kavors annonskonto innan synkning kan aktiveras.'}
+      {provider:'meta_ads',name:'Meta Ads Manager',description:'Annonskostnader, räckvidd och kampanjresultat.',note:'Läsanslutning via Meta Marketing API. Kavora kan inte skapa eller ändra annonser.'}
     ];
-    $('#integrationGrid').innerHTML=definitions.map(def=>{const item=state.integrations.find(row=>row.provider===def.provider)||{status:'not_connected'};const syncable=['app_store_connect','google_play'].includes(def.provider);const pending=Boolean(def.pending&&item.status!=='connected');const displayStatus=pending?'pending':item.status;const appName=item.metadata?.name;const appIdentifier=item.metadata?.bundle_id||item.metadata?.package_name||'';return `<article class="integration-card"><h3>${def.name}</h3><p>${def.description}</p>${appName?`<small>${escapeHtml(appName)}${appIdentifier?` · ${escapeHtml(appIdentifier)}`:''}</small>`:''}${def.note?`<small>${escapeHtml(def.note)}</small>`:''}<div class="integration-meta"><span class="badge ${displayStatus}">${escapeHtml(statusLabels[displayStatus]||displayStatus)}</span><button class="table-action" data-configure-integration="${def.provider}"${pending?' disabled':''}>${pending?'Behöver konfigureras':syncable?(item.status==='connected'?'Synka':'Kontrollera anslutning'):(item.status==='connected'?'Visa':'Anslut säkert')}</button></div>${item.last_synced_at?`<small>Senast synkad ${formatDate(item.last_synced_at)}</small>`:''}${item.last_error?`<small>${escapeHtml(item.last_error)}</small>`:''}</article>`}).join('');
+    $('#integrationGrid').innerHTML=definitions.map(def=>{const item=state.integrations.find(row=>row.provider===def.provider)||{status:'not_connected'};const syncable=['app_store_connect','google_play','meta_ads'].includes(def.provider);const displayStatus=item.status;const appName=item.metadata?.name;const appIdentifier=item.metadata?.bundle_id||item.metadata?.package_name||(item.metadata?.ad_account_id?`Annonskonto ${item.metadata.ad_account_id}`:'');const metaSummary=def.provider==='meta_ads'&&item.status==='connected'?`Senaste 30 dagarna: ${formatMoney(item.metadata?.spend||0)} · ${new Intl.NumberFormat('sv-SE').format(Number(item.metadata?.reach||0))} i räckvidd · ${new Intl.NumberFormat('sv-SE').format(Number(item.metadata?.clicks||0))} klick · ${Number(item.metadata?.active_campaign_count||0)} aktiva kampanjer`:'';return `<article class="integration-card"><h3>${def.name}</h3><p>${def.description}</p>${appName?`<small>${escapeHtml(appName)}${appIdentifier?` · ${escapeHtml(appIdentifier)}`:''}</small>`:''}${metaSummary?`<small>${escapeHtml(metaSummary)}</small>`:''}${def.note?`<small>${escapeHtml(def.note)}</small>`:''}<div class="integration-meta"><span class="badge ${displayStatus}">${escapeHtml(statusLabels[displayStatus]||displayStatus)}</span><button class="table-action" data-configure-integration="${def.provider}">${syncable?(item.status==='connected'?'Synka':'Kontrollera anslutning'):(item.status==='connected'?'Visa':'Anslut säkert')}</button></div>${item.last_synced_at?`<small>Senast synkad ${formatDate(item.last_synced_at)}</small>`:''}${item.last_error?`<small>${escapeHtml(item.last_error)}</small>`:''}</article>`}).join('');
   }
 
   async function syncApple(){
@@ -191,6 +191,14 @@
     try{
       await api('/functions/v1/kavora-google-play',{method:'POST',body:{action:'sync'}});
       showMessage('Google Play Console är anslutet till Kavora.');
+      await refreshData();
+    }catch(error){showMessage(errorText(error),'error');await refreshData()}
+  }
+  async function syncMetaAds(){
+    showMessage('Kontrollerar Meta Ads Manager…');
+    try{
+      await api('/functions/v1/kavora-meta-ads',{method:'POST',body:{action:'sync'}});
+      showMessage('Meta Ads Manager är anslutet till Kavora med läsbehörighet.');
       await refreshData();
     }catch(error){showMessage(errorText(error),'error');await refreshData()}
   }
@@ -350,7 +358,7 @@
       const printButton=event.target.closest('[data-print-order]');if(printButton){printOrder(printButton.dataset.printOrder)}
       const caseButton=event.target.closest('[data-open-case]');if(caseButton){openCase(state.cases.find(item=>item.id===caseButton.dataset.openCase));return}
       const expenseButton=event.target.closest('[data-delete-expense]');if(expenseButton){deleteExpense(expenseButton.dataset.deleteExpense);return}
-      const integrationButton=event.target.closest('[data-configure-integration]');if(integrationButton){if(integrationButton.dataset.configureIntegration==='app_store_connect'){await syncApple()}else if(integrationButton.dataset.configureIntegration==='google_play'){await syncGooglePlay()}else{showMessage('Anslutningen förbereds med läsbehörighet. Hemliga API-nycklar läggs in i nästa säkra steg.');switchView('integrations')}}
+      const integrationButton=event.target.closest('[data-configure-integration]');if(integrationButton){if(integrationButton.dataset.configureIntegration==='app_store_connect'){await syncApple()}else if(integrationButton.dataset.configureIntegration==='google_play'){await syncGooglePlay()}else if(integrationButton.dataset.configureIntegration==='meta_ads'){await syncMetaAds()}}
     });
   }
 
