@@ -32,7 +32,7 @@ function numberValue(value: unknown) {
 }
 
 async function graphRequest(path: string, accessToken: string, params: Record<string, string>) {
-  const url = new URL(`https://graph.facebook.com/${path.replace(/^\/+/, "")}`);
+  const url = new URL(`https://graph.facebook.com/v26.0/${path.replace(/^\/+/, "")}`);
   Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
   const graphResponse = await fetch(url, {
     headers: { Authorization: `Bearer ${accessToken}` },
