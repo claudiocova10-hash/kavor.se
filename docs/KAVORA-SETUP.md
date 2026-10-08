@@ -63,6 +63,10 @@ Integrationsvyn är förberedd för läsbehörighet:
 
 Publicering, prisändring, kampanjändring eller budgetändring ska alltid kräva Claudios uttryckliga godkännande.
 
+### App Store Connect
+
+Kavora använder Edge-funktionen `kavora-apple` med rollen **Sales and Reports**. Funktionen verifierar att den inloggade användaren finns i `kavor_admins`, skapar ett kortlivat Apple-JWT på servern och gör endast läsande API-anrop. Apple-nyckeln ligger i Supabase Edge Function Secrets och får aldrig flyttas till `admin.js`, appen eller andra klientfiler.
+
 ## Säkerhet
 
 - Alla affärstabeller har Row Level Security och är bara tillgängliga för UUID:n i `kavor_admins`.

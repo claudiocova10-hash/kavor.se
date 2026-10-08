@@ -2,3 +2,6 @@ project_id = "knhidfmifdsfajtqzojy"
 
 [functions.kavora-chat]
 verify_jwt = false
+
+[functions.kavora-apple]
+verify_jwt = false

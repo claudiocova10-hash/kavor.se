@@ -2,3 +2,4 @@ backend/.env
 backend/node_modules/
 backend/generated/
 .DS_Store
+supabase/.temp/

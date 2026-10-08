@@ -171,7 +171,16 @@
       {provider:'google_play',name:'Google Play Console',description:'Lanseringsstatus, installationer, prenumerationer och intäkter.'},
       {provider:'meta_ads',name:'Meta Ads Manager',description:'Annonskostnader, räckvidd och kampanjresultat.'}
     ];
-    $('#integrationGrid').innerHTML=definitions.map(def=>{const item=state.integrations.find(row=>row.provider===def.provider)||{status:'not_connected'};return `<article class="integration-card"><h3>${def.name}</h3><p>${def.description}</p><div class="integration-meta"><span class="badge ${item.status}">${escapeHtml(statusLabels[item.status]||item.status)}</span><button class="table-action" data-configure-integration="${def.provider}">${item.status==='connected'?'Visa':'Anslut säkert'}</button></div>${item.last_synced_at?`<small>Senast synkad ${formatDate(item.last_synced_at)}</small>`:''}</article>`}).join('');
+    $('#integrationGrid').innerHTML=definitions.map(def=>{const item=state.integrations.find(row=>row.provider===def.provider)||{status:'not_connected'};const apple=def.provider==='app_store_connect';const appName=item.metadata?.name;return `<article class="integration-card"><h3>${def.name}</h3><p>${def.description}</p>${appName?`<small>${escapeHtml(appName)} · ${escapeHtml(item.metadata?.bundle_id||'')}</small>`:''}<div class="integration-meta"><span class="badge ${item.status}">${escapeHtml(statusLabels[item.status]||item.status)}</span><button class="table-action" data-configure-integration="${def.provider}">${apple?(item.status==='connected'?'Synka':'Kontrollera anslutning'):(item.status==='connected'?'Visa':'Anslut säkert')}</button></div>${item.last_synced_at?`<small>Senast synkad ${formatDate(item.last_synced_at)}</small>`:''}${item.last_error?`<small>${escapeHtml(item.last_error)}</small>`:''}</article>`}).join('');
+  }
+
+  async function syncApple(){
+    showMessage('Kontrollerar App Store Connect…');
+    try{
+      await api('/functions/v1/kavora-apple',{method:'POST',body:{action:'sync'}});
+      showMessage('App Store Connect är anslutet till Kavora.');
+      await refreshData();
+    }catch(error){showMessage(errorText(error),'error');await refreshData()}
   }
   function renderTasks(){
     const tasks=state.tasks.filter(task=>state.taskFilter==='all'||task.status===state.taskFilter);
@@ -320,7 +329,7 @@
     $$('[data-task-filter]').forEach(button=>button.addEventListener('click',()=>{state.taskFilter=button.dataset.taskFilter;$$('[data-task-filter]').forEach(item=>item.classList.toggle('active',item===button));renderTasks()}));
     $$('[data-case-filter]').forEach(button=>button.addEventListener('click',()=>{state.caseFilter=button.dataset.caseFilter;$$('[data-case-filter]').forEach(item=>item.classList.toggle('active',item===button));renderCases()}));
     $('#newExpenseButton').addEventListener('click',openExpense);$('#expenseForm').addEventListener('submit',saveExpense);$('#caseForm').addEventListener('submit',saveCase);
-    document.addEventListener('click',event=>{
+    document.addEventListener('click',async event=>{
       const close=event.target.closest('[value="cancel"]');if(close){event.preventDefault();close.closest('dialog')?.close();return}
       const editCompany=event.target.closest('[data-edit-company]');if(editCompany){openCompany(companyById(editCompany.dataset.editCompany));return}
       const editOrder=event.target.closest('[data-edit-order]');if(editOrder){openOrder(state.orders.find(order=>order.id===editOrder.dataset.editOrder));return}
@@ -329,7 +338,7 @@
       const printButton=event.target.closest('[data-print-order]');if(printButton){printOrder(printButton.dataset.printOrder)}
       const caseButton=event.target.closest('[data-open-case]');if(caseButton){openCase(state.cases.find(item=>item.id===caseButton.dataset.openCase));return}
       const expenseButton=event.target.closest('[data-delete-expense]');if(expenseButton){deleteExpense(expenseButton.dataset.deleteExpense);return}
-      const integrationButton=event.target.closest('[data-configure-integration]');if(integrationButton){showMessage('Anslutningen förbereds med läsbehörighet. Hemliga API-nycklar läggs in i nästa säkra steg.');switchView('integrations')}
+      const integrationButton=event.target.closest('[data-configure-integration]');if(integrationButton){if(integrationButton.dataset.configureIntegration==='app_store_connect'){await syncApple()}else{showMessage('Anslutningen förbereds med läsbehörighet. Hemliga API-nycklar läggs in i nästa säkra steg.');switchView('integrations')}}
     });
   }
 
