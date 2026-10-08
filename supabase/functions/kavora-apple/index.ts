@@ -69,17 +69,27 @@ Deno.serve(async (req) => {
   if (!userToken) return response({ error: "Du behöver logga in." }, 401, origin);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const supabase = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
-  const { data: userData, error: userError } = await supabase.auth.getUser(userToken);
+  const authClient = createClient(supabaseUrl, anonKey, {
+    global: { headers: { Authorization: `Bearer ${userToken}` } },
+    auth: { persistSession: false },
+  });
+  const { data: userData, error: userError } = await authClient.auth.getUser(userToken);
   if (userError || !userData.user) return response({ error: "Inloggningen kunde inte verifieras." }, 401, origin);
 
-  const { data: admin } = await supabase
+  const { data: admin, error: adminError } = await authClient
     .from("kavor_admins")
     .select("user_id")
     .eq("user_id", userData.user.id)
     .maybeSingle();
+  if (adminError) {
+    return response({ error: `Admin-kontrollen misslyckades: ${adminError.message}` }, 500, origin);
+  }
   if (!admin) return response({ error: "Kontot saknar administratörsbehörighet." }, 403, origin);
+
+  // External data and integration status are handled by a separate server client.
+  const adminClient = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
   const issuerId = Deno.env.get("APP_STORE_CONNECT_ISSUER_ID")?.trim();
   const keyId = Deno.env.get("APP_STORE_CONNECT_KEY_ID")?.trim();
@@ -111,7 +121,7 @@ Deno.serve(async (req) => {
       primary_locale: app.attributes?.primaryLocale || null,
       access: "Sales and Reports",
     };
-    const { error: updateError } = await supabase
+    const { error: updateError } = await adminClient
       .from("kavora_integrations")
       .update({ status: "connected", last_synced_at: syncedAt, last_error: null, metadata })
       .eq("provider", "app_store_connect");
@@ -119,7 +129,7 @@ Deno.serve(async (req) => {
     return response({ ok: true, provider: "app_store_connect", status: "connected", last_synced_at: syncedAt, metadata }, 200, origin);
   } catch (error) {
     const message = String(error instanceof Error ? error.message : error).slice(0, 500);
-    await supabase
+    await adminClient
       .from("kavora_integrations")
       .update({ status: "error", last_error: message })
       .eq("provider", "app_store_connect");
