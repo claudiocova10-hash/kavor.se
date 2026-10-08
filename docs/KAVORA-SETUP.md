@@ -67,6 +67,10 @@ Publicering, prisändring, kampanjändring eller budgetändring ska alltid kräv
 
 Kavora använder Edge-funktionen `kavora-apple` med rollen **Sales and Reports**. Funktionen verifierar att den inloggade användaren finns i `kavor_admins`, skapar ett kortlivat Apple-JWT på servern och gör endast läsande API-anrop. Apple-nyckeln ligger i Supabase Edge Function Secrets och får aldrig flyttas till `admin.js`, appen eller andra klientfiler.
 
+### Google Play Console
+
+Kavora använder Edge-funktionen `kavora-google-play` och servicekontot `kavora-reporting@kavor-integrations.iam.gserviceaccount.com`. Play Console-åtkomsten är begränsad till Kavor och läsbehörighet för appinformation, appkvalitet och ekonomiska rapporter. Funktionen skapar ett kortlivat Google OAuth-token på servern och kontrollerar appens prenumerationsprodukter med Google Play Android Developer API. JSON-nyckeln lagras enbart som Supabase-hemligheten `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` och får aldrig läggas i Git eller klientkod.
+
 ## Säkerhet
 
 - Alla affärstabeller har Row Level Security och är bara tillgängliga för UUID:n i `kavor_admins`.

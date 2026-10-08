@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.kavora-apple]
 verify_jwt = false
+
+[functions.kavora-google-play]
+verify_jwt = false
