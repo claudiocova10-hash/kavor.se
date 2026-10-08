@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' data:; connect-src 'self' https://knhidfmifdsfajtqzojy.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <title>Kavora – Kavors adminassistent</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="sidebar" aria-label="Huvudmeny">
+      <a class="brand" href="admin.html" aria-label="Kavora – Kavors adminassistent">
+        <img src="assets/logo-kavor-gold.png" alt="Kavor">
+        <span>Kavora</span>
+      </a>
+      <nav id="adminNav" hidden>
+        <button class="nav-button active" data-view="overview"><span>Översikt</span></button>
+        <button class="nav-button" data-view="companies"><span>Företag</span></button>
+        <button class="nav-button" data-view="orders"><span>Beställningar</span></button>
+        <button class="nav-button" data-view="tasks"><span>Uppgifter</span></button>
+        <button class="nav-button" data-view="documents"><span>Dokument</span></button>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="signedInAs"></span>
+        <button class="text-button" id="signOutButton" type="button" hidden>Logga ut</button>
+      </div>
+    </aside>
+
+    <main>
+      <section class="login-panel" id="loginPanel">
+        <div class="login-card">
+          <p class="eyebrow">KAVORA</p>
+          <h1>Din digitala företagsadministratör</h1>
+          <p>Samla företag, beställningar, fakturastatus, licensleveranser, dokument och påminnelser på ett ställe.</p>
+          <form id="loginForm" class="stack-form">
+            <label>E-post<input id="loginEmail" type="email" autocomplete="username" required></label>
+            <label>Lösenord<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+            <button class="primary-button" type="submit">Logga in säkert</button>
+          </form>
+          <p class="form-message" id="loginMessage" role="status"></p>
+        </div>
+      </section>
+
+      <section class="setup-panel" id="setupPanel" hidden>
+        <div class="login-card">
+          <p class="eyebrow">FÖRSTA GÅNGEN</p>
+          <h1>Kontot behöver administratörsbehörighet</h1>
+          <p>Databasschemat måste installeras och ditt användar-id läggas till en gång i Supabase. Instruktionen finns i <strong>docs/KAVOR-ADMIN-SETUP.md</strong>.</p>
+          <div class="copy-row"><code id="currentUserId"></code><button type="button" id="copyUserId">Kopiera id</button></div>
+          <button class="secondary-button" id="retryAdminButton" type="button">Kontrollera igen</button>
+          <p class="form-message" id="setupMessage" role="status"></p>
+        </div>
+      </section>
+
+      <section class="workspace" id="workspace" hidden>
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">KAVORA</p>
+            <h1 id="viewTitle">Översikt</h1>
+            <p id="todayText"></p>
+          </div>
+          <div class="topbar-actions">
+            <button class="secondary-button" id="newTaskButton" type="button">Ny uppgift</button>
+            <button class="primary-button" id="newOrderButton" type="button">Ny beställning</button>
+          </div>
+        </header>
+
+        <div id="globalMessage" class="global-message" hidden role="status"></div>
+
+        <section class="view active" data-view-panel="overview">
+          <div class="metric-grid">
+            <article class="metric-card warning"><span>Behöver åtgärdas</span><strong id="metricAction">0</strong><small>beställningar</small></article>
+            <article class="metric-card danger"><span>Förfallna uppgifter</span><strong id="metricOverdue">0</strong><small>att följa upp</small></article>
+            <article class="metric-card"><span>Aktiva företag</span><strong id="metricCompanies">0</strong><small>företagskunder</small></article>
+            <article class="metric-card success"><span>Levererade licenser</span><strong id="metricLicenses">0</strong><small>totalt antal</small></article>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="panel">
+              <div class="panel-heading"><div><h2>Nästa att göra</h2><p>Prioriterat efter datum och status.</p></div><button class="text-button" data-go-view="tasks">Visa alla</button></div>
+              <div id="nextActions" class="item-list"></div>
+            </article>
+            <article class="panel">
+              <div class="panel-heading"><div><h2>Beställningsflöde</h2><p>Från beställning till leverans.</p></div><button class="text-button" data-go-view="orders">Visa alla</button></div>
+              <div id="orderPipeline" class="pipeline"></div>
+            </article>
+          </div>
+
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Senaste företag</h2><p>Snabb åtkomst till pågående kundarbete.</p></div><button class="text-button" id="newCompanyButton" type="button">+ Lägg till företag</button></div>
+            <div class="table-wrap"><table><thead><tr><th>Företag</th><th>Kontakt</th><th>Status</th><th>Nästa steg</th></tr></thead><tbody id="recentCompanies"></tbody></table></div>
+          </article>
+        </section>
+
+        <section class="view" data-view-panel="companies">
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Företag</h2><p>Kontakt-, faktura- och leveransuppgifter.</p></div><div class="heading-actions"><input id="companySearch" type="search" placeholder="Sök företag"><button class="primary-button" id="newCompanyButton2" type="button">Nytt företag</button></div></div>
+            <div class="table-wrap"><table><thead><tr><th>Företag</th><th>Kontaktperson</th><th>Faktura-e-post</th><th>Status</th><th></th></tr></thead><tbody id="companiesTable"></tbody></table></div>
+          </article>
+        </section>
+
+        <section class="view" data-view-panel="orders">
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Beställningar och fakturor</h2><p>Fortnox är bokföringskälla. Här följer du arbetsflödet och licenserna.</p></div><button class="primary-button" id="newOrderButton2" type="button">Ny beställning</button></div>
+            <div class="table-wrap"><table><thead><tr><th>Företag</th><th>Paket</th><th>Belopp</th><th>Faktura</th><th>Status</th><th></th></tr></thead><tbody id="ordersTable"></tbody></table></div>
+          </article>
+        </section>
+
+        <section class="view" data-view-panel="tasks">
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Uppgifter och påminnelser</h2><p>Det du behöver göra – i rätt ordning.</p></div><button class="primary-button" id="newTaskButton2" type="button">Ny uppgift</button></div>
+            <div class="filter-row"><button class="filter active" data-task-filter="open">Öppna</button><button class="filter" data-task-filter="all">Alla</button><button class="filter" data-task-filter="done">Klart</button></div>
+            <div id="tasksList" class="item-list roomy"></div>
+          </article>
+        </section>
+
+        <section class="view" data-view-panel="documents">
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Företagsdokument</h2><p>Dokumenten lagras privat och sorteras per företag och kategori.</p></div><button class="primary-button" id="uploadDocumentButton" type="button">Ladda upp dokument</button></div>
+            <div class="table-wrap"><table><thead><tr><th>Dokument</th><th>Företag</th><th>Kategori</th><th>Uppladdat</th><th></th></tr></thead><tbody id="documentsTable"></tbody></table></div>
+          </article>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="companyDialog">
+    <form method="dialog" id="companyForm" class="dialog-form">
+      <div class="dialog-heading"><div><p class="eyebrow">FÖRETAG</p><h2 id="companyDialogTitle">Nytt företag</h2></div><button class="icon-button" value="cancel" aria-label="Stäng">×</button></div>
+      <input id="companyId" type="hidden">
+      <div class="form-grid">
+        <label class="wide">Företagsnamn<input id="companyName" required></label>
+        <label>Organisationsnummer<input id="companyOrgNumber"></label>
+        <label>Status<select id="companyStatus"><option value="lead">Intresserad</option><option value="active">Aktiv kund</option><option value="paused">Pausad</option></select></label>
+        <label>Kontaktperson<input id="companyContactName"></label>
+        <label>Telefon<input id="companyPhone" type="tel"></label>
+        <label>E-post<input id="companyEmail" type="email"></label>
+        <label>Faktura-e-post<input id="companyBillingEmail" type="email"></label>
+        <label class="wide">Fakturaadress<input id="companyAddress"></label>
+        <label>Postnummer<input id="companyPostal"></label>
+        <label>Ort<input id="companyCity"></label>
+        <label class="wide">Anteckningar<textarea id="companyNotes" rows="3"></textarea></label>
+      </div>
+      <div class="dialog-actions"><button class="secondary-button" value="cancel">Avbryt</button><button class="primary-button" id="saveCompanyButton" value="default">Spara företag</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="orderDialog">
+    <form method="dialog" id="orderForm" class="dialog-form">
+      <div class="dialog-heading"><div><p class="eyebrow">BESTÄLLNING</p><h2 id="orderDialogTitle">Ny beställning</h2></div><button class="icon-button" value="cancel" aria-label="Stäng">×</button></div>
+      <input id="orderId" type="hidden">
+      <div class="form-grid">
+        <label class="wide">Företag<select id="orderCompany" required></select></label>
+        <label>Licenslängd<select id="orderMonths"><option value="6">6 månader</option><option value="12" selected>12 månader</option></select></label>
+        <label>Antal licenser<input id="orderQuantity" type="number" min="1" value="1" required></label>
+        <label>Pris per licens, exkl. moms<input id="orderUnitPrice" type="number" min="0" step="0.01" required></label>
+        <label>Rabatt %<input id="orderDiscount" type="number" min="0" max="100" step="0.01" value="0"></label>
+        <label>Fakturanummer i Fortnox<input id="orderInvoiceReference"></label>
+        <label>Förfallodatum<input id="orderDueDate" type="date"></label>
+        <label class="wide">Status<select id="orderStatus"><option value="draft">Utkast</option><option value="invoice_ready">Fakturaunderlag klart</option><option value="sent">Faktura skickad</option><option value="paid">Betald</option><option value="licenses_delivered">Licenser levererade</option><option value="cancelled">Avbruten</option></select></label>
+        <label class="wide">Anteckningar<textarea id="orderNotes" rows="3"></textarea></label>
+      </div>
+      <div class="total-preview">Summa exkl. moms <strong id="orderTotalPreview">0 kr</strong></div>
+      <div class="dialog-actions"><button class="secondary-button" value="cancel">Avbryt</button><button class="primary-button" id="saveOrderButton" value="default">Spara beställning</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="taskDialog">
+    <form method="dialog" id="taskForm" class="dialog-form">
+      <div class="dialog-heading"><div><p class="eyebrow">PÅMINNELSE</p><h2>Ny uppgift</h2></div><button class="icon-button" value="cancel" aria-label="Stäng">×</button></div>
+      <div class="form-grid">
+        <label class="wide">Rubrik<input id="taskTitle" required></label>
+        <label>Företag<select id="taskCompany"><option value="">Inget särskilt företag</option></select></label>
+        <label>Förfallodatum<input id="taskDueDate" type="date" required></label>
+        <label>Prioritet<select id="taskPriority"><option value="normal">Normal</option><option value="high">Hög</option><option value="low">Låg</option></select></label>
+        <label class="wide">Anteckningar<textarea id="taskNotes" rows="3"></textarea></label>
+      </div>
+      <div class="dialog-actions"><button class="secondary-button" value="cancel">Avbryt</button><button class="primary-button" id="saveTaskButton" value="default">Spara uppgift</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="documentDialog">
+    <form method="dialog" id="documentForm" class="dialog-form">
+      <div class="dialog-heading"><div><p class="eyebrow">DOKUMENT</p><h2>Ladda upp och sortera</h2></div><button class="icon-button" value="cancel" aria-label="Stäng">×</button></div>
+      <div class="form-grid">
+        <label class="wide">Företag<select id="documentCompany" required></select></label>
+        <label>Kategori<select id="documentCategory"><option value="quote_agreement">Offert och avtal</option><option value="order">Beställning</option><option value="invoice">Faktura</option><option value="license_codes">Licenskoder</option><option value="communication">Kommunikation</option><option value="other">Övrigt</option></select></label>
+        <label>Fil<input id="documentFile" type="file" required></label>
+      </div>
+      <div class="dialog-actions"><button class="secondary-button" value="cancel">Avbryt</button><button class="primary-button" id="saveDocumentButton" value="default">Ladda upp</button></div>
+    </form>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="account-config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
