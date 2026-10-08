@@ -35,7 +35,7 @@ function fallback(message: string, language: string) {
   };
   const t = texts[language] || texts.sv;
   if(/gas|rök|smoke|humo|brand|fire|incendio|skadad.*kabel|damaged.*wire|cable.*dañado/.test(m)) return language === "en" ? "Stop using the system. If safe, turn off gas and 230 V, leave the risk area if needed, and contact emergency services or a qualified technician." : language === "es" ? "Deja de usar el sistema. Si es seguro, corta el gas y 230 V, aléjate de la zona de riesgo y contacta con emergencias o personal cualificado." : "Avbryt användningen. Stäng av gasol och 230 V om det kan göras säkert, lämna riskområdet vid behov och kontakta räddningstjänst eller behörig tekniker.";
-  if(/pris|price|precio|39|prov|trial|prueba/.test(m)) return t.price;
+  if(/pris|kost(?:ar|nad)?|price|cost|precio|cuesta|39|prov|trial|prueba/.test(m)) return t.price;
   if(/konto|account|cuenta|licen|logga|login|iniciar/.test(m)) return t.account;
   if(/kavor|funktion|funciona|work|guide/.test(m)) return t.app;
   return t.default;
