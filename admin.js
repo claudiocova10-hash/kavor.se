@@ -36,7 +36,7 @@
   function errorText(error){
     const text=String(error?.message||error||'Något gick fel.');
     if(/relation .* does not exist|Could not find the table|404/i.test(text))return 'Admin-databasen är inte installerad ännu.';
-    if(/row-level security|permission denied|403/i.test(text))return 'Kontot saknar administratörsbehörighet.';
+    if(/row-level security|permission denied/i.test(text))return 'Kontot saknar administratörsbehörighet.';
     return text;
   }
   async function currentSession(){
