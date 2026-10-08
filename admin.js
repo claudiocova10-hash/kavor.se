@@ -13,7 +13,7 @@
     lead:'Intresserad',active:'Aktiv kund',paused:'Pausad',
     draft:'Utkast',invoice_ready:'Fakturaunderlag klart',sent:'Faktura skickad',paid:'Betald',licenses_delivered:'Licenser levererade',cancelled:'Avbruten',
     quote_agreement:'Offert och avtal',order:'Beställning',invoice:'Faktura',license_codes:'Licenskoder',communication:'Kommunikation',other:'Övrigt',
-    new:'Nytt',in_progress:'Pågår',resolved:'Avslutat',not_connected:'Inte ansluten',connected:'Ansluten',error:'Behöver åtgärdas',software:'Programvara',marketing:'Marknadsföring',services:'Tjänster',equipment:'Utrustning'
+    new:'Nytt',in_progress:'Pågår',resolved:'Avslutat',not_connected:'Inte ansluten',connected:'Ansluten',error:'Behöver åtgärdas',pending:'Inte konfigurerad',software:'Programvara',marketing:'Marknadsföring',services:'Tjänster',equipment:'Utrustning'
   };
 
   function localDate(date){
@@ -173,9 +173,9 @@
     const definitions=[
       {provider:'app_store_connect',name:'App Store Connect',description:'Appstatus, granskning, nedladdningar och intäkter.'},
       {provider:'google_play',name:'Google Play Console',description:'Lanseringsstatus, installationer, prenumerationer och intäkter.'},
-      {provider:'meta_ads',name:'Meta Ads Manager',description:'Annonskostnader, räckvidd och kampanjresultat.'}
+      {provider:'meta_ads',name:'Meta Ads Manager',description:'Annonskostnader, räckvidd och kampanjresultat.',pending:true,note:'Kräver en Meta-app och läsbehörighet till Kavors annonskonto innan synkning kan aktiveras.'}
     ];
-    $('#integrationGrid').innerHTML=definitions.map(def=>{const item=state.integrations.find(row=>row.provider===def.provider)||{status:'not_connected'};const syncable=['app_store_connect','google_play'].includes(def.provider);const appName=item.metadata?.name;const appIdentifier=item.metadata?.bundle_id||item.metadata?.package_name||'';return `<article class="integration-card"><h3>${def.name}</h3><p>${def.description}</p>${appName?`<small>${escapeHtml(appName)}${appIdentifier?` · ${escapeHtml(appIdentifier)}`:''}</small>`:''}<div class="integration-meta"><span class="badge ${item.status}">${escapeHtml(statusLabels[item.status]||item.status)}</span><button class="table-action" data-configure-integration="${def.provider}">${syncable?(item.status==='connected'?'Synka':'Kontrollera anslutning'):(item.status==='connected'?'Visa':'Anslut säkert')}</button></div>${item.last_synced_at?`<small>Senast synkad ${formatDate(item.last_synced_at)}</small>`:''}${item.last_error?`<small>${escapeHtml(item.last_error)}</small>`:''}</article>`}).join('');
+    $('#integrationGrid').innerHTML=definitions.map(def=>{const item=state.integrations.find(row=>row.provider===def.provider)||{status:'not_connected'};const syncable=['app_store_connect','google_play'].includes(def.provider);const pending=Boolean(def.pending&&item.status!=='connected');const displayStatus=pending?'pending':item.status;const appName=item.metadata?.name;const appIdentifier=item.metadata?.bundle_id||item.metadata?.package_name||'';return `<article class="integration-card"><h3>${def.name}</h3><p>${def.description}</p>${appName?`<small>${escapeHtml(appName)}${appIdentifier?` · ${escapeHtml(appIdentifier)}`:''}</small>`:''}${def.note?`<small>${escapeHtml(def.note)}</small>`:''}<div class="integration-meta"><span class="badge ${displayStatus}">${escapeHtml(statusLabels[displayStatus]||displayStatus)}</span><button class="table-action" data-configure-integration="${def.provider}"${pending?' disabled':''}>${pending?'Behöver konfigureras':syncable?(item.status==='connected'?'Synka':'Kontrollera anslutning'):(item.status==='connected'?'Visa':'Anslut säkert')}</button></div>${item.last_synced_at?`<small>Senast synkad ${formatDate(item.last_synced_at)}</small>`:''}${item.last_error?`<small>${escapeHtml(item.last_error)}</small>`:''}</article>`}).join('');
   }
 
   async function syncApple(){
